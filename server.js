@@ -13,4 +13,5 @@ app.use(bodyParser.json())
 
 app.post('/invoice_generated', chargebeeEvents.handleInvoiceGeneration);
 
-app.listen(4242, () => console.log('Running on port 4242'));
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Running on port ${port}`));

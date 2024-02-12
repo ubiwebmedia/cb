@@ -26,6 +26,15 @@ async function retrieveCustomer(id) {
   return customer;
 }
 
+async function updateCustomerDefaultPaymentMethod(customer_id, default_payment_method) {
+  const customer = await stripe.customers.update(customer_id, {
+    invoice_settings: {
+      default_payment_method
+    }
+  });
+  return customer;
+}
+
 async function retrieveInvoice(id) {
   const invoice = await stripe.invoices.retrieve(id);
   return invoice;
@@ -36,6 +45,15 @@ async function retrievePaymentMethod(id) {
   return paymentMethod;
 }
 
+async function retrievePaymentIntent(id) {
+  const paymentIntent = await stripe.paymentIntents.retrieve(id);
+  return paymentIntent;
+}
+
+async function confirmPaymentIntent(id) {
+  const paymentIntent = await stripe.paymentIntents.confirm(id);
+  return paymentIntent;
+}
 
 async function listInvoice(customer_id) {
   const invoices = await stripe.invoices.list({
@@ -45,13 +63,13 @@ async function listInvoice(customer_id) {
   return invoices;
 }
 
-async function createInvoiceAndSendEmail(customer_id, invoice_id, currency_code, due_date, line_items) {
+async function createInvoice(customer_id, invoice_id, currency_code, due_date, line_items) {
   try {
     // Create an invoice in Stripe for the customer
     const invoice = await stripe.invoices.create({
       customer: customer_id, // Customer ID from Stripe
-      collection_method: 'send_invoice',
-      days_until_due: 0,
+      collection_method: 'charge_automatically',
+      auto_advance: true,
       payment_settings: {
         payment_method_types: ['acss_debit']
       },
@@ -102,6 +120,9 @@ module.exports = {
   retrieveCustomer,
   retrieveInvoice,
   retrievePaymentMethod,
-  createInvoiceAndSendEmail,
-  listInvoice
+  createInvoice,
+  listInvoice,
+  retrievePaymentIntent,
+  confirmPaymentIntent,
+  updateCustomerDefaultPaymentMethod
 };

@@ -89,7 +89,14 @@ async function processInvoice(invoice) {
     return await utils.getAsResponse('error', 'invoice already exists in stripe', 200);
   }
 
-  const stripe_invoice = await stripeService.createInvoiceAndSendEmail(stripeCustomer.id, invoice.id, invoice.currency_code, invoice.due_date, line_items);
+  const stripe_invoice = await stripeService.createInvoice(stripeCustomer.id, invoice.id, invoice.currency_code, invoice.due_date, line_items);
+
+  const payment_intent_id = stripe_invoice.payment_intent;
+  var payment_intent = await stripeService.retrievePaymentIntent(payment_intent_id);
+
+  if (payment_intent.status === 'requires_confirmation') {
+    payment_intent = await stripeService.confirmPaymentIntent(payment_intent_id);
+  }
 
   var notes = `https://dashboard.stripe.com/invoices/${stripe_invoice.id}`;
   if (cbSite.endsWith('-test'))

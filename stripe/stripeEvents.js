@@ -30,6 +30,11 @@ async function processSuccessPaymentIntentEvent(request, response) {
         if (paymentMethod.type != "acss_debit")
           return await utils.getAsResponse('error', `payment method type is ${paymentMethod.type}`, 200);
 
+        var stripe_customer = await stripeService.retrieveCustomer(payment_intent_object.customer);
+        if (!stripe_customer?.invoice_settings?.default_payment_method) {
+          stripe_customer = await stripeService.updateCustomerDefaultPaymentMethod(stripe_customer.id, payment_intent_object.payment_method);
+        }
+
         const invoice_id = payment_intent_object.invoice;
         const invoice = await stripeService.retrieveInvoice(invoice_id);
         const cb_invoice_id = invoice.metadata.cb_invoice_id;
