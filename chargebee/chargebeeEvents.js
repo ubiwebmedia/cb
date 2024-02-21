@@ -98,11 +98,7 @@ async function processInvoice(invoice) {
     payment_intent = await stripeService.confirmPaymentIntent(payment_intent_id);
   }
 
-  var notes = `https://dashboard.stripe.com/invoices/${stripe_invoice.id}`;
-  if (cbSite.endsWith('-test'))
-    notes = `https://dashboard.stripe.com/test/invoices/${stripe_invoice.id}`;
-
-  await chargebeeService.addComment(invoice.id, 'invoice', `stripe invoice url - ${notes}`);
+  await chargebeeService.addComment(invoice.id, 'invoice', `stripe hosted invoice url - ${stripe_invoice?.hosted_invoice_url}`);
 
   return await utils.getAsResponse('success', 'success', 200);
 }
