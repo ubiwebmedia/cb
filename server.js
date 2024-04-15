@@ -9,7 +9,7 @@ const app = express();
 
 app.get('/', (req, res) => { console.log('receive health check req'); res.send() });
 
-app.post('/success_payment_intent', express.raw({ type: 'application/json' }), stripeEvents.processSuccessPaymentIntentEvent);
+app.post('/success_payment_intent', express.raw({ type: 'application/json' }), stripeEvents.processSuccessPaymentIntent);
 
 app.use(bodyParser.json())
 

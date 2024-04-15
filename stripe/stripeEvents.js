@@ -8,7 +8,13 @@ const stripeService = require('./../stripe/stripeService');
 const chargebeService = require('./../chargebee/chargebeeService.js');
 
 
-async function processSuccessPaymentIntentEvent(request, response) {
+async function processSuccessPaymentIntent(req, res) {
+  let response = await processSuccessPaymentIntentEvent(req, res);
+  console.log(response);
+  res.status(response.statusCode).send(response.body);
+}
+
+async function processSuccessPaymentIntentEvent(request) {
   const sig = request.headers['stripe-signature'];
 
   let event;
@@ -46,16 +52,15 @@ async function processSuccessPaymentIntentEvent(request, response) {
     }
 
     // Return a 200 response to acknowledge receipt of the event
-    response.send();
-
+    return await utils.getAsResponse('success', 'success', 200);
   } catch (err) {
     console.log(err);
-    response.status(400).send(`Webhook Error: ${err.message}`);
+    return await utils.getAsResponse('error', `Webhook Error: ${err.message}`, 400);
     return;
   }
 };
 
 
 module.exports = {
-  processSuccessPaymentIntentEvent,
+  processSuccessPaymentIntent,
 };
